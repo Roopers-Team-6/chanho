@@ -12,6 +12,6 @@ public interface PointV1ApiSpec {
     ApiResponse<PointV1Dto.PointResponse> balance(Long userId, HttpServletRequest request);
 
     @Operation(summary = "포인트 충전")
-    ApiResponse<PointV1Dto.PointResponse> charge(Long userId, Long amount, HttpServletRequest request);
+    ApiResponse<PointV1Dto.PointResponse> charge(PointV1Dto.ChargeRequest chargeRequest, HttpServletRequest request);
 
 }

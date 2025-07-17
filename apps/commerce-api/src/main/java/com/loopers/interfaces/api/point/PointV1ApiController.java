@@ -27,10 +27,10 @@ public class PointV1ApiController implements PointV1ApiSpec {
         );
     }
 
-    @PostMapping("/{targetUserId}")
+    @PostMapping
     @Override
     public ApiResponse<PointV1Dto.PointResponse> charge(
-            @PathVariable Long targetUserId, @RequestBody Long amount, HttpServletRequest request
+            @RequestBody PointV1Dto.ChargeRequest chargeRequest, HttpServletRequest request
     ) {
         String userId = request.getHeader("X-USER-ID");
         if (userId == null) {
@@ -38,7 +38,7 @@ public class PointV1ApiController implements PointV1ApiSpec {
         }
 
         return ApiResponse.success(
-                userFacade.charge(targetUserId, amount)
+                userFacade.charge(chargeRequest.userId(), chargeRequest.amount())
         );
     }
 }

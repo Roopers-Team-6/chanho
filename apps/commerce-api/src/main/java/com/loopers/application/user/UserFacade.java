@@ -59,8 +59,10 @@ public class UserFacade {
             throw new CoreException(ErrorType.BAD_REQUEST, "Charge amount must be greater than zero.");
         }
 
-        UserEntity user = userService.findById(userId)
-                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "User not found with ID: [%s]".formatted(userId)));
+        UserEntity user = userService.findById(userId);
+        if (user == null) {
+            throw new CoreException(ErrorType.NOT_FOUND, "User not found with ID: [%s]".formatted(userId));
+        }
 
         PointEntity point = pointService.findByUserId(userId);
         if (point == null) {

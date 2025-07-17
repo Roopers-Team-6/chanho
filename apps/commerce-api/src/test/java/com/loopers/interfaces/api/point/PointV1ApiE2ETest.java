@@ -28,6 +28,10 @@ class PointV1ApiE2ETest {
      * 포인트 조회 E2E 테스트
      * - [ ]  포인트 조회에 성공할 경우, 보유 포인트를 응답으로 반환한다.
      * - [ ]  `X-USER-ID` 헤더가 없을 경우, `400 Bad Request` 응답을 반환한다.
+     *
+     * 포인트 충전 E2E 테스트
+     * - [ ]  존재하는 유저가 1000원을 충전할 경우, 충전된 보유 총량을 응답으로 반환한다.
+     * - [ ]  존재하지 않는 유저로 요청할 경우, `404 Not Found` 응답을 반환한다.
      */
 
     @Autowired
@@ -100,6 +104,77 @@ class PointV1ApiE2ETest {
             // assert
             assertAll(
                     () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST),
+                    () -> assertThat(response.getBody().meta().result()).isEqualTo(ApiResponse.Metadata.Result.FAIL),
+                    () -> assertThat(response.getBody().data()).isNull()
+            );
+        }
+    }
+
+    @DisplayName("POST /api/v1/points/{id}")
+    @Nested
+    class Charge {
+        private static final String ENDPOINT = "/api/v1/points";
+
+        @DisplayName("존재하는 유저가 1000원을 충전할 경우, 충전된 보유 총량을 응답으로 반환한다.")
+        @Test
+        void returnsChargedPoints_whenUserExists() {
+            // arrange
+            UserV1Dto.UserResponse saved = userFacade.signUp(new UserV1Dto.SignupRequest(
+                    "mwma91",
+                    "test@gmail.com",
+                    UserGender.M,
+                    LocalDate.of(2000, 1, 1)
+            ));
+
+            String chargeAmount = """
+                    {
+                        "userId": %d,
+                        "amount": %d
+                    }
+                    """.formatted(saved.id(), 1000);
+
+            // act
+            HttpHeaders httpHeaders = new HttpHeaders();
+            httpHeaders.add("X-USER-ID", saved.id().toString());
+            httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+
+            ParameterizedTypeReference<ApiResponse<PointV1Dto.PointResponse>> responseType = new ParameterizedTypeReference<>() {
+            };
+            ResponseEntity<ApiResponse<PointV1Dto.PointResponse>> response =
+                    testRestTemplate.exchange(ENDPOINT, HttpMethod.POST, new HttpEntity<>(chargeAmount, httpHeaders), responseType);
+
+            // assert
+            assertAll(
+                    () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
+                    () -> assertThat(response.getBody()).isNotNull(),
+                    () -> assertThat(response.getBody().data().amount()).isEqualTo(1000)
+            );
+        }
+
+        @DisplayName("존재하지 않는 유저로 요청할 경우, `404 Not Found` 응답을 반환한다.")
+        @Test
+        void returnsNotFound_whenUserDoesNotExist() {
+            // arrange
+            String chargeAmount = """
+                    {
+                        "userId": %d,
+                        "amount": %d
+                    }
+                    """.formatted(999L, 1000);
+
+            // act
+            HttpHeaders httpHeaders = new HttpHeaders();
+            httpHeaders.add("X-USER-ID", "999"); // 존재하지 않는 유저 ID
+            httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+
+            ParameterizedTypeReference<ApiResponse<PointV1Dto.PointResponse>> responseType = new ParameterizedTypeReference<>() {
+            };
+            ResponseEntity<ApiResponse<PointV1Dto.PointResponse>> response =
+                    testRestTemplate.exchange(ENDPOINT, HttpMethod.POST, new HttpEntity<>(chargeAmount, httpHeaders), responseType);
+
+            // assert
+            assertAll(
+                    () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND),
                     () -> assertThat(response.getBody().meta().result()).isEqualTo(ApiResponse.Metadata.Result.FAIL),
                     () -> assertThat(response.getBody().data()).isNull()
             );
