@@ -43,9 +43,12 @@ public class UserFacade {
 
     @Transactional(readOnly = true)
     public PointV1Dto.PointResponse findBalance(Long userId) {
-        return pointService.findByUserId(userId)
-                .map(PointV1Dto.PointResponse::from)
-                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "Point not found for user ID: [%s]".formatted(userId)));
+        PointEntity point = pointService.findByUserId(userId);
+        if (point == null) {
+            throw new CoreException(ErrorType.NOT_FOUND, "Point not found for user ID: [%s]".formatted(userId));
+        }
+
+        return PointV1Dto.PointResponse.from(point);
     }
 
     @Transactional
@@ -57,9 +60,10 @@ public class UserFacade {
         UserEntity user = userService.findById(userId)
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "User not found with ID: [%s]".formatted(userId)));
 
-        PointEntity point = pointService.findByUserId(userId)
-                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "Point not found for user ID: [%s]".formatted(userId)));
-
+        PointEntity point = pointService.findByUserId(userId);
+        if (point == null) {
+            throw new CoreException(ErrorType.NOT_FOUND, "Point not found for user ID: [%s]".formatted(userId));
+        }
         point.charge(amount);
 
         return PointV1Dto.PointResponse.from(pointService.save(point));

@@ -6,8 +6,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 @Service
 @RequiredArgsConstructor
 public class PointServiceImpl implements PointService {
@@ -24,7 +22,8 @@ public class PointServiceImpl implements PointService {
     }
 
     @Override
-    public Optional<PointEntity> findByUserId(Long id) {
-        return pointRepository.findByUserId(id);
+    public PointEntity findByUserId(Long id) {
+        return pointRepository.findByUserId(id)
+                .orElse(null);
     }
 }
