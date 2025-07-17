@@ -1,5 +1,6 @@
 package com.loopers.domain.user;
 
+import com.loopers.application.user.UserCommand;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import com.loopers.utils.DatabaseCleanUp;
@@ -10,6 +11,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
+
+import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -44,18 +47,19 @@ class UserServiceIntegrationTest {
         @Test
         void savesUser_whenSignupIsSuccessful() {
             // arrange
-            UserEntity newUser = new UserEntity(
+            UserCommand.Create newUser = new UserCommand.Create(
                     "test",
                     "test@gmail.com",
-                    "2000-01-01");
+                    UserGender.M,
+                    LocalDate.of(2000, 1, 1));
 
             // act
             UserEntity savedUser = userService.save(newUser);
 
             verify(userRepository).save(argThat(user ->
                     user.getId() != null
-                            && user.getUsername().equals(newUser.getUsername())
-                            && user.getEmail().equals(newUser.getEmail()))
+                            && user.getUsername().equals(newUser.username())
+                            && user.getEmail().equals(newUser.email()))
             );
 
             // assert
@@ -66,16 +70,17 @@ class UserServiceIntegrationTest {
         @Test
         void throwsException_whenUserAlreadyExists() {
             // arrange
-            UserEntity user = new UserEntity(
+            UserCommand.Create newUser = new UserCommand.Create(
                     "test",
                     "test@gmail.com",
-                    "2000-01-01");
+                    UserGender.M,
+                    LocalDate.of(2000, 1, 1));
 
             // act
-            UserEntity saved = userService.save(user);
+            UserEntity saved = userService.save(newUser);
 
             // assert
-            CoreException exception = assertThrows(CoreException.class, () -> userService.save(user));
+            CoreException exception = assertThrows(CoreException.class, () -> userService.save(newUser));
             assertThat(exception.getErrorType()).isEqualTo(ErrorType.CONFLICT);
         }
     }

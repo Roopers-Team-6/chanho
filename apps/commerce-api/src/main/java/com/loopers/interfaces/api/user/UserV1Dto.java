@@ -1,5 +1,7 @@
 package com.loopers.interfaces.api.user;
 
+import com.loopers.domain.user.UserEntity;
+import com.loopers.domain.user.UserGender;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 
@@ -7,9 +9,9 @@ import java.time.LocalDate;
 
 public class UserV1Dto {
     public record SignupRequest(
-            String name,
+            String username,
             String email,
-            Gender gender,
+            UserGender gender,
             LocalDate birth
     ) {
         public SignupRequest {
@@ -21,15 +23,20 @@ public class UserV1Dto {
 
     public record UserResponse(
             Long id,
-            String name,
+            String username,
             String email,
-            Gender gender,
+            UserGender gender,
             LocalDate birth
     ) {
+        public static UserResponse from(UserEntity user) {
+            return new UserResponse(
+                    user.getId(),
+                    user.getUsername(),
+                    user.getEmail(),
+                    user.getGender(),
+                    user.getBirth()
+            );
+        }
     }
 
-    enum Gender {
-        M,
-        F
-    }
 }

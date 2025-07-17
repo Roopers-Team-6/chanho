@@ -21,16 +21,19 @@ public class UserEntity extends BaseEntity {
     private String username;
     @Column(unique = true, nullable = false, length = 50, name = "email")
     private String email;
+    @Column(nullable = false, name = "gender")
+    private UserGender gender;
     @Column(nullable = false, name = "birth")
     private LocalDate birth;
 
-    public UserEntity(String username, String email, String birth) {
+    public UserEntity(String username, String email, UserGender gender, String birth) {
         UserValidator.validateUsername(username);
         UserValidator.validateEmail(email);
         UserValidator.validateBirth(birth);
-        
+
         this.username = username;
         this.email = email;
+        this.gender = gender;
         this.birth = LocalDate.parse(birth);
     }
 

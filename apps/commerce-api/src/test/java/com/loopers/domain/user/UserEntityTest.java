@@ -26,6 +26,7 @@ public class UserEntityTest {
                     () -> new UserEntity(
                             invalidUsername,
                             "test@gmail.com",
+                            UserGender.M,
                             "2000-01-01"));
         }
 
@@ -37,6 +38,7 @@ public class UserEntityTest {
                     () -> new UserEntity(
                             "mwma91",
                             invalidEmail,
+                            UserGender.M,
                             "2000-01-01"));
         }
 
@@ -48,6 +50,7 @@ public class UserEntityTest {
                     () -> new UserEntity(
                             "mwma91",
                             "test@gmail.com",
+                            UserGender.M,
                             invalidBirthDate));
         }
 
