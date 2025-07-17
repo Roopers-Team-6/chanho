@@ -26,6 +26,10 @@ public class PointEntity extends BaseEntity {
     }
 
     public void charge(long points) {
+        if (points <= 0) {
+            throw new IllegalArgumentException("충전 포인트는 0보다 커야 합니다.");
+        }
+
         if (this.amount + points < 0) {
             throw new IllegalArgumentException("충전 후 포인트는 0 이상이어야 합니다.");
         }
