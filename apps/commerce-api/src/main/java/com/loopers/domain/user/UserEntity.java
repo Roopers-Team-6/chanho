@@ -1,8 +1,10 @@
 package com.loopers.domain.user;
 
+import com.loopers.domain.BaseEntity;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
@@ -12,20 +14,21 @@ import java.util.regex.Pattern;
 @Entity
 @Table(name = "members")
 @NoArgsConstructor
-public class UserEntity {
+@Getter
+public class UserEntity extends BaseEntity {
 
-    @Id
-    private Long id;
+    @Column(unique = true, nullable = false, length = 10, name = "username")
     private String username;
+    @Column(unique = true, nullable = false, length = 50, name = "email")
     private String email;
+    @Column(nullable = false, name = "birth")
     private LocalDate birth;
 
-    public UserEntity(Long id, String username, String email, String birth) {
+    public UserEntity(String username, String email, String birth) {
         UserValidator.validateUsername(username);
         UserValidator.validateEmail(email);
         UserValidator.validateBirth(birth);
-
-        this.id = id;
+        
         this.username = username;
         this.email = email;
         this.birth = LocalDate.parse(birth);

@@ -24,7 +24,6 @@ public class UserEntityTest {
         void failedToCreateUserModel_whenUsernameIsInvalid(String invalidUsername) {
             assertThrows(IllegalArgumentException.class,
                     () -> new UserEntity(
-                            1L,
                             invalidUsername,
                             "test@gmail.com",
                             "2000-01-01"));
@@ -36,7 +35,6 @@ public class UserEntityTest {
         void failedToCreateUserModel_whenEmailIsInvalid(String invalidEmail) {
             assertThrows(IllegalArgumentException.class,
                     () -> new UserEntity(
-                            1L,
                             "mwma91",
                             invalidEmail,
                             "2000-01-01"));
@@ -48,7 +46,6 @@ public class UserEntityTest {
         void failedToCreateUserModel_whenBirthDateIsInvalid(String invalidBirthDate) {
             assertThrows(IllegalArgumentException.class,
                     () -> new UserEntity(
-                            1L,
                             "mwma91",
                             "test@gmail.com",
                             invalidBirthDate));
