@@ -28,11 +28,11 @@ public class UserV1ApiController implements UserV1ApiSpec {
     @PostMapping("/me")
     @Override
     public ApiResponse<UserV1Dto.UserResponse> me(HttpServletRequest request) {
-        if (request.getHeader("X-USER_ID") == null) {
+        if (request.getHeader("X-USER-ID") == null) {
             throw new CoreException(ErrorType.NOT_FOUND, "User ID is missing in the request header.");
         }
 
-        long userId = Long.parseLong(request.getHeader("X-USER_ID"));
+        long userId = Long.parseLong(request.getHeader("X-USER-ID"));
 
         return ApiResponse.success(userFacade.find(userId));
     }

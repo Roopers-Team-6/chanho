@@ -32,7 +32,6 @@ class UserV1ApiE2ETest {
     @Autowired
     private TestRestTemplate testRestTemplate;
 
-
     @Autowired
     private DatabaseCleanUp databaseCleanUp;
 
@@ -125,7 +124,7 @@ class UserV1ApiE2ETest {
 
             // act
             HttpHeaders httpHeaders = new HttpHeaders();
-            httpHeaders.add("X-USER_ID", String.valueOf(created.id()));
+            httpHeaders.add("X-USER-ID", String.valueOf(created.id()));
 
             ParameterizedTypeReference<ApiResponse<UserV1Dto.UserResponse>> responseType = new ParameterizedTypeReference<>() {
             };
@@ -171,7 +170,7 @@ class UserV1ApiE2ETest {
         void returnsNotFound_whenUserIdDoesNotExist() {
             // arrange
             HttpHeaders httpHeaders = new HttpHeaders();
-            httpHeaders.add("X-USER_ID", "9999"); // 존재하지 않는 ID
+            httpHeaders.add("X-USER-ID", "9999"); // 존재하지 않는 ID
 
             // act
             ParameterizedTypeReference<ApiResponse<UserV1Dto.UserResponse>> responseType = new ParameterizedTypeReference<>() {
