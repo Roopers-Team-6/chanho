@@ -22,8 +22,13 @@ import static org.mockito.Mockito.verify;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class UserServiceIntegrationTest {
     /*
+     * 회원가입 통합 테스트
      * - [o]  회원 가입시 User 저장이 수행된다. ( spy 검증 )
      * - [o]  이미 가입된 ID 로 회원가입 시도 시, 실패한다.
+     *
+     * 내 정보 조회 통합 테스트
+     * - [ ]  해당 ID 의 회원이 존재할 경우, 회원 정보가 반환된다.
+     * - [ ]  해당 ID 의 회원이 존재하지 않을 경우, null 이 반환된다.
      */
 
     @Autowired
@@ -82,6 +87,44 @@ class UserServiceIntegrationTest {
             // assert
             CoreException exception = assertThrows(CoreException.class, () -> userService.save(newUser));
             assertThat(exception.getErrorType()).isEqualTo(ErrorType.CONFLICT);
+        }
+    }
+
+    @DisplayName("내 정보 조회")
+    @Nested
+    class Me {
+        @DisplayName("해당 ID 의 회원이 존재할 경우, 회원 정보가 반환된다.")
+        @Test
+        void returnsUserInfo_whenUserExists() {
+            // arrange
+            UserCommand.Create newUser = new UserCommand.Create(
+                    "test",
+                    "test@gmail.com",
+                    UserGender.M,
+                    LocalDate.of(2000, 1, 1));
+
+            // act
+            UserEntity savedUser = userService.save(newUser);
+            UserEntity foundUser = userService.findById(savedUser.getId());
+
+            // assert
+            assertThat(savedUser.getId()).isNotNull();
+            assertThat(foundUser).isNotNull();
+            assertThat(foundUser.getUsername()).isEqualTo(newUser.username());
+            assertThat(foundUser.getEmail()).isEqualTo(newUser.email());
+        }
+
+        @DisplayName("해당 ID 의 회원이 존재하지 않을 경우, null 이 반환된다.")
+        @Test
+        void returnsNull_whenUserDoesNotExist() {
+            // arrange
+            Long nonExistentId = 999L;
+
+            // act
+            UserEntity foundUser = userService.findById(nonExistentId);
+
+            // assert
+            assertThat(foundUser).isNull();
         }
     }
 }

@@ -20,8 +20,10 @@ public class UserFacade {
 
     @Transactional(readOnly = true)
     public UserV1Dto.UserResponse find(Long id) {
-        UserEntity user = userService.findById(id)
-                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "User not found with ID: [%s]".formatted(id)));
+        UserEntity user = userService.findById(id);
+        if (user == null) {
+            throw new CoreException(ErrorType.NOT_FOUND, "User not found with ID: [%s]".formatted(id));
+        }
 
         return UserV1Dto.UserResponse.from(user);
     }

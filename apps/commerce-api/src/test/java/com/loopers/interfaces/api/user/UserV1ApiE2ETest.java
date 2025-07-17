@@ -112,7 +112,7 @@ class UserV1ApiE2ETest {
 
     @DisplayName("GET /api/v1/users/me")
     @Nested
-    class GetMyInfo {
+    class Me {
 
         private static final String ENDPOINT = "/api/v1/users/me";
 
