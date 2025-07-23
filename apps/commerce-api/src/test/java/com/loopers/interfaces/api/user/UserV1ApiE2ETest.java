@@ -7,6 +7,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -77,19 +79,11 @@ class UserV1ApiE2ETest {
             );
         }
 
-        @DisplayName("회원 가입 시에 성별이 없을 경우, `400 Bad Request` 응답을 반환한다.")
-        @Test
-        void returnsBadRequest_whenGenderIsMissing() {
+        @DisplayName("회원 가입 시 요청 값이 올바르지 않을 경우 `400 Bad Request` 응답을 반환한다.")
+        @ParameterizedTest(name = "{index} - {0}")
+        @MethodSource("com.loopers.interfaces.api.user.param.SignupRequestParam#invalidRequests")
+        void returnsBadRequest_whenParameterIsInvalid(String testName, String requestBody, HttpStatus expectedStatus) {
             // arrange
-            String signupRequest = """
-                    {
-                        "username": "mwma91",
-                        "email": "test@gmail.com",
-                        "gender": null,
-                        "birth": "2000-01-01"
-                    }
-                    """;
-
             // act
             HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.setContentType(MediaType.APPLICATION_JSON);
@@ -97,17 +91,15 @@ class UserV1ApiE2ETest {
             ParameterizedTypeReference<ApiResponse<UserV1Dto.UserResponse>> responseType = new ParameterizedTypeReference<>() {
             };
             ResponseEntity<ApiResponse<UserV1Dto.UserResponse>> response =
-                    testRestTemplate.exchange(ENDPOINT, HttpMethod.POST, new HttpEntity<>(signupRequest, httpHeaders), responseType);
+                    testRestTemplate.exchange(ENDPOINT, HttpMethod.POST, new HttpEntity<>(requestBody, httpHeaders), responseType);
 
             // assert
             assertAll(
-                    () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST),
+                    () -> assertThat(response.getStatusCode()).isEqualTo(expectedStatus),
                     () -> assertThat(response.getBody().meta().result()).isEqualTo(ApiResponse.Metadata.Result.FAIL),
                     () -> assertThat(response.getBody().data()).isNull()
             );
         }
-
-
     }
 
     @DisplayName("GET /api/v1/users/me")
