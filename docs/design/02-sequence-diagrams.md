@@ -4,6 +4,7 @@
 2. [주문생성](#2-주문생성)
 3. [좋아요 등록](#3-좋아요-등록)
 4. [좋아요 취소](#4-좋아요-취소)
+5. [좋아요 목록 조회](#5-좋아요-목록-조회)
 
 ## 1. 상품조회
 
@@ -112,4 +113,23 @@ sequenceDiagram
 
     LikeService -->> LikeController: SuccessResponse
     LikeController -->> User: 204 No Content
+```
+
+## 5. 좋아요 목록 조회
+
+```mermaid
+sequenceDiagram
+    participant User as 사용자
+    participant LikeController as 좋아요 컨트롤러
+    participant LikeService as 좋아요 서비스
+    participant ProductService as 상품 서비스
+
+    User ->> LikeController: GET /api/v1/users/me/likes
+    Note over LikeController: X-USER-ID 헤더로 사용자 식별
+    LikeController ->> LikeService: findLikedProducts(userId, pageable)
+    Note over LikeService: 사용자가 좋아요한 상품 ID 목록 조회
+    LikeService -->> ProductService: findProductsByIds(likedProductIds, pageable)
+    ProductService -->> LikeService: Page<Product>
+    LikeService -->> LikeController: Page<ProductDto>
+    LikeController -->> User: 200 OK
 ```
